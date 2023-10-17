@@ -10,6 +10,7 @@ Game::Game()
 	mRenderer = nullptr;
 	mPaddlePos = { 20, 768 / 2 };
 	mBallPos = { 1024 / 2, 768 / 2 };
+	mTicksCount = 0;
 }
 
 // 함수 초기화에 성공하면 true, 그렇지 않으면 false
@@ -98,7 +99,20 @@ void Game::ProcessInput()
 	}
 }
 
-void Game::UpdateGame() {}
+void Game::UpdateGame() 
+{
+	// 마지막 프레임 이후로 16ms가 지날 때까지 대기
+	while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16));
+
+	// delta time은 현재 프레임 tick값과 이전 프레임 tick값의 차다.
+	// 차를 초 단위로 변환한다.
+	float deltaTime = (SDL_GetTicks() - mTicksCount) / 1000.0f;
+	// 다음 프레임을 위해 tick 값 갱신
+	mTicksCount = SDL_GetTicks();
+
+	// delta time을 최대 0.05초까지만 갖게 함
+	if (deltaTime > 0.05f) deltaTime = 0.05f;
+}
 
 void Game::GenerateOutput() 
 {

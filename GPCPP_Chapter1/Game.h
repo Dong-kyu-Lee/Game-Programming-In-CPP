@@ -31,6 +31,8 @@ private:
 	bool mIsRunning;
 	// 그래픽으로 뭔가를 그릴 때 쓰는 객체
 	SDL_Renderer* mRenderer;
+	// delta time을 계산할 때 사용할 이전 프레임의 Tick값
+	Uint32 mTicksCount;
 
 	Vector2 mPaddlePos;
 	Vector2 mBallPos;
