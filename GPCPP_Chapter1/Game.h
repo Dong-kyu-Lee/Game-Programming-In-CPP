@@ -1,6 +1,13 @@
 #pragma once
 #include <SDL.h>
 
+// x, y 좌표를 가지고 있는 구조체
+struct Vector2
+{
+	float x;
+	float y;
+};
+
 class Game
 {
 public:
@@ -24,4 +31,7 @@ private:
 	bool mIsRunning;
 	// 그래픽으로 뭔가를 그릴 때 쓰는 객체
 	SDL_Renderer* mRenderer;
+
+	Vector2 mPaddlePos;
+	Vector2 mBallPos;
 };

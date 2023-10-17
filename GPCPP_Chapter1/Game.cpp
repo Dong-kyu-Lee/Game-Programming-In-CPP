@@ -1,10 +1,15 @@
 #include "Game.h"
 
+const int thickness = 15;
+const int paddleH = 100;
+
 Game::Game()
 {
 	mIsRunning = true;
 	mWindow = nullptr;
 	mRenderer = nullptr;
+	mPaddlePos = { 20, 768 / 2 };
+	mBallPos = { 1024 / 2, 768 / 2 };
 }
 
 // 함수 초기화에 성공하면 true, 그렇지 않으면 false
@@ -102,5 +107,42 @@ void Game::GenerateOutput()
 		mRenderer, 0, 0, 255, 255 // R G B A
 	);
 	SDL_RenderClear(mRenderer); // 지정한 색상으로 후면 버퍼를 클리어함
+
+#pragma region Wall Rendering
+	// 벽과 퐁 렌더링하기
+	SDL_SetRenderDrawColor(mRenderer, 255, 255, 255, 255); // 벽, 퐁 색상
+	
+	// SDL_Rect 구조체는 왼쪽 상단의 x,y좌표, 너비, 높이를 입력받는다.
+	SDL_Rect wall{ 0,0,1024,thickness };
+	SDL_RenderFillRect(mRenderer, &wall); // 위쪽 벽
+
+	wall.y = 768 - thickness;
+	SDL_RenderFillRect(mRenderer, &wall); // 아래쪽 벽
+
+	wall.x = 1024 - thickness;
+	wall.y = 0;
+	wall.w = thickness;
+	wall.h = 768;
+	SDL_RenderFillRect(mRenderer, &wall); // 오른쪽 벽
+#pragma endregion
+
+	SDL_Rect ball
+	{
+		static_cast<int>(mBallPos.x - thickness / 2),
+		static_cast<int>(mBallPos.y - thickness / 2),
+		thickness,
+		thickness
+	};
+	SDL_RenderFillRect(mRenderer, &ball);
+
+	SDL_Rect paddle
+	{
+		static_cast<int>(mPaddlePos.x),
+		static_cast<int>(mPaddlePos.y - paddleH / 2),
+		thickness,
+		paddleH
+	};
+	SDL_RenderFillRect(mRenderer, &paddle);
+
 	SDL_RenderPresent(mRenderer); // 전면 버퍼와 후면 버퍼 교환
 }
