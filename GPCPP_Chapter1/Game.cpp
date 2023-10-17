@@ -4,6 +4,7 @@ Game::Game()
 {
 	mIsRunning = true;
 	mWindow = nullptr;
+	mRenderer = nullptr;
 }
 
 // 함수 초기화에 성공하면 true, 그렇지 않으면 false
@@ -38,12 +39,25 @@ bool Game::Initialize()
 		return false;
 	}
 
+	mRenderer = SDL_CreateRenderer(
+		mWindow, // 렌더링을 위해 생성한 윈도우
+		-1,			// SDL이 글카를 결정하라는 의미. 게임이 사용하는 윈도우가 여러개일 때 의미있음. 일반적으로 -1
+		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC // 가속화된 렌더러 사용 여부(좋은 글카를 사용하는지) | VSYNC를 제공 여부
+	);
+
+	if (!mRenderer)
+	{
+		SDL_Log("Failed to create renderer : %s", SDL_GetError());
+		return false;
+	}
+
 	return true;
 }
 
 void Game::Shutdown()
 {
 	SDL_DestroyWindow(mWindow); // SDL_Window 객체 해제
+	SDL_DestroyRenderer(mRenderer); // SDL_Renderer 객체 해제
 	SDL_Quit(); // SDL 종료
 }
 
@@ -81,4 +95,12 @@ void Game::ProcessInput()
 
 void Game::UpdateGame() {}
 
-void Game::GenerateOutput() {}
+void Game::GenerateOutput() 
+{
+	// 렌더링할 색상 지정
+	SDL_SetRenderDrawColor(
+		mRenderer, 0, 0, 255, 255 // R G B A
+	);
+	SDL_RenderClear(mRenderer); // 지정한 색상으로 후면 버퍼를 클리어함
+	SDL_RenderPresent(mRenderer); // 전면 버퍼와 후면 버퍼 교환
+}

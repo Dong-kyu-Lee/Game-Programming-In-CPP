@@ -22,4 +22,6 @@ private:
 	SDL_Window* mWindow;
 	// 게임이 계속 실행돼야 하는지를 판단
 	bool mIsRunning;
+	// 그래픽으로 뭔가를 그릴 때 쓰는 객체
+	SDL_Renderer* mRenderer;
 };
