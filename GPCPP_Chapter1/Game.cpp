@@ -1,16 +1,12 @@
 #include "Game.h"
+#include <math.h>
 
 const int thickness = 15;
 const int paddleH = 100;
 
-Game::Game()
+Game::Game() : mPaddleDir(0), mTicksCount(0), mIsRunning(true), mWindow(nullptr), mRenderer(nullptr)
 {
-	mIsRunning = true;
-	mWindow = nullptr;
-	mRenderer = nullptr;
-	mPaddlePos = { 20, 768 / 2 };
-	mBallPos = { 1024 / 2, 768 / 2 };
-	mTicksCount = 0;
+
 }
 
 // 함수 초기화에 성공하면 true, 그렇지 않으면 false
@@ -57,6 +53,13 @@ bool Game::Initialize()
 		return false;
 	}
 
+	mPaddlePos.x = 10.0f;
+	mPaddlePos.y = 768.0f / 2.0f;
+	mBallPos.x = 1024.0f / 2.0f;
+	mBallPos.y = 768.0f / 2.0f;
+	mBallVel.x = -200.0f;
+	mBallVel.y = 235.0f;
+
 	return true;
 }
 
@@ -97,6 +100,17 @@ void Game::ProcessInput()
 	{
 		mIsRunning = false;
 	}
+
+	// 패들의 움직임 입력
+	mPaddleDir = 0;
+	if (state[SDL_SCANCODE_W])
+	{
+		mPaddleDir -= 1;
+	}
+	if (state[SDL_SCANCODE_S])
+	{
+		mPaddleDir += 1;
+	}
 }
 
 void Game::UpdateGame() 
@@ -112,6 +126,57 @@ void Game::UpdateGame()
 
 	// delta time을 최대 0.05초까지만 갖게 함
 	if (deltaTime > 0.05f) deltaTime = 0.05f;
+
+	// 패들의 움직임
+	if (mPaddleDir != 0)
+	{
+		mPaddlePos.y += mPaddleDir * 300.0f * deltaTime;
+
+		// 패들의 경계값 확인
+		if (mPaddlePos.y < (paddleH / 2 + thickness))
+		{
+			mPaddlePos.y = (paddleH / 2 + thickness);
+		}
+		else if (mPaddlePos.y > (768 - paddleH / 2 - thickness))
+		{
+			mPaddlePos.y = (768 - paddleH / 2 - thickness);
+		}
+	}
+
+	// 공의 움직임
+	mBallPos.x += mBallVel.x * deltaTime;
+	mBallPos.y += mBallVel.y * deltaTime;
+
+	float diff = mPaddlePos.y - mBallPos.y;
+	diff = (diff > 0.0f) ? diff : -diff;
+	if (
+		diff < paddleH / 2 &&
+		mBallPos.x <= 25.0f && mBallPos.x >= 20.0f &&
+		mBallVel.x < 0.0f
+		)
+	{
+		mBallVel.x *= -1.0f;
+	}
+	// 공이 빠져나갔을 때(게임 오버일 때)
+	if (mBallPos.x <= 0.0f)
+	{
+		mIsRunning = false;
+	}
+	// 공이 오른쪽 벽에 부딛혔을 때
+	else if (mBallPos.x >= (1024.0f - thickness) && mBallVel.x > 0.0f)
+	{
+		mBallVel.x *= -1.0f;
+	}
+	// 공이 위쪽 벽에 부딛혔을 때
+	else if (mBallPos.y <= thickness && mBallVel.y < 0.0f)
+	{
+		mBallVel.y *= -1.0f;
+	}
+	// 공이 아래쪽 벽에 부딛혔을 때
+	else if (mBallPos.y >= (768 - thickness) && mBallVel.y > 0.0f)
+	{
+		mBallVel.y *= -1.0f;
+	}
 }
 
 void Game::GenerateOutput() 

@@ -25,6 +25,11 @@ private:
 	void UpdateGame();
 	void GenerateOutput();
 
+	int mPaddleDir;
+	Vector2 mBallVel;
+	Vector2 mPaddlePos;
+	Vector2 mBallPos;
+
 	// SDL이 생성한 윈도우
 	SDL_Window* mWindow;
 	// 게임이 계속 실행돼야 하는지를 판단
@@ -33,7 +38,4 @@ private:
 	SDL_Renderer* mRenderer;
 	// delta time을 계산할 때 사용할 이전 프레임의 Tick값
 	Uint32 mTicksCount;
-
-	Vector2 mPaddlePos;
-	Vector2 mBallPos;
 };
