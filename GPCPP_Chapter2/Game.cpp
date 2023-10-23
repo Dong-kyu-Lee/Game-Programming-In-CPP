@@ -47,6 +47,8 @@ bool Game::Initialize()
 		return false;
 	}
 
+
+
 	return true;
 }
 
