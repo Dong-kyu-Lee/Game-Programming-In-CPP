@@ -17,6 +17,8 @@ public:
 	void AddActor(class Actor* actor);
 	void RemoveActor(class Actor* actor);
 	SDL_Texture* GetTexture(std::string& fileName);
+	void AddSprite(class SpriteComponent* sprite);
+	void RemoveSprite(class SpriteComponent* sprite);
 
 private:
 	// 게임 루프를 위한 헬퍼 함수
@@ -42,4 +44,6 @@ private:
 	bool mUpdatingActors;
 	// 파일 이름(Key)과 텍스쳐(Value) 쌍을 저장한 맵
 	std::unordered_map<std::string, SDL_Texture*> mTextures;
+	// 그릴 Sprite를 저장한 벡터
+	std::vector<class SpriteComponent*> mSprites;
 };

@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Actor.h"
 #include "SDL_image.h"
+#include "SpriteComponent.h"
 #include <math.h>
 
 const int thickness = 15;
@@ -59,6 +60,8 @@ bool Game::Initialize()
 		SDL_Log("Failed to create SDL image : %s", SDL_GetError());
 		return false;
 	}
+
+	LoadData();
 
 	return true;
 }
@@ -230,4 +233,26 @@ SDL_Texture* Game::GetTexture(std::string& fileName)
 	}
 
 	return text;
+}
+
+// 그릴 스프라이트를 Game 객체의 sprte 벡터에 추가
+void Game::AddSprite(SpriteComponent* sprite)
+{
+	// 정렬된 벡터에서 삽입해야 될 위치를 찾는다.
+	// (자신보다 그리기 순서값이 큰(나중에 그려질) 최초 요소)
+	int myDrawOrder = sprite->GetDrawOrder();
+	auto iter = mSprites.begin();
+	for (; iter != mSprites.end(); ++iter)
+	{
+		if (myDrawOrder < (*iter)->GetDrawOrder())
+		{
+			break;
+		}
+	}
+
+	mSprites.insert(iter, sprite);
+}
+
+void Game::RemoveSprite(SpriteComponent* sprite)
+{
 }
