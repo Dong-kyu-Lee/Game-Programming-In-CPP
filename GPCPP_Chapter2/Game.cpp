@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Actor.h"
+#include "SDL_image.h"
 #include <math.h>
 
 const int thickness = 15;
@@ -13,35 +14,6 @@ Game::Game()
 , mUpdatingActors(false)
 {
 
-}
-
-void Game::AddActor(class Actor* actor)
-{
-	// 액터가 갱신 중이라면 대기 벡터에 추가
-	if (mUpdatingActors)
-	{
-		mPendingActors.emplace_back(actor);
-	}
-	else
-	{
-		mActors.emplace_back(actor);
-	}
-}
-
-void Game::RemoveActor(class Actor* actor)
-{
-	auto iter = std::find(mPendingActors.begin(), mPendingActors.end(), actor);
-	if (iter != mPendingActors.end())
-	{
-		std::iter_swap(iter, mPendingActors.end() - 1);
-		mPendingActors.pop_back();
-	}
-	iter = std::find(mActors.begin(), mActors.end(), actor);
-	if (iter != mActors.end())
-	{
-		std::iter_swap(iter, mActors.end() - 1);
-		mActors.pop_back();
-	}
 }
 
 // 함수 초기화에 성공하면 true, 그렇지 않으면 false
@@ -79,6 +51,12 @@ bool Game::Initialize()
 	if (!mRenderer)
 	{
 		SDL_Log("Failed to create renderer : %s", SDL_GetError());
+		return false;
+	}
+
+	if (IMG_Init(IMG_INIT_PNG) == 0) 
+	{
+		SDL_Log("Failed to create SDL image : %s", SDL_GetError());
 		return false;
 	}
 
@@ -179,10 +157,77 @@ void Game::GenerateOutput()
 	SDL_RenderPresent(mRenderer); // 전면 버퍼와 후면 버퍼 교환
 }
 
+void Game::AddActor(class Actor* actor)
+{
+	// 액터가 갱신 중이라면 대기 벡터에 추가
+	if (mUpdatingActors)
+	{
+		mPendingActors.emplace_back(actor);
+	}
+	else
+	{
+		mActors.emplace_back(actor);
+	}
+}
+
+void Game::RemoveActor(class Actor* actor)
+{
+	auto iter = std::find(mPendingActors.begin(), mPendingActors.end(), actor);
+	if (iter != mPendingActors.end())
+	{
+		std::iter_swap(iter, mPendingActors.end() - 1);
+		mPendingActors.pop_back();
+	}
+	iter = std::find(mActors.begin(), mActors.end(), actor);
+	if (iter != mActors.end())
+	{
+		std::iter_swap(iter, mActors.end() - 1);
+		mActors.pop_back();
+	}
+}
+
+void Game::LoadData()
+{
+
+}
+
 void Game::UnLoadData()
 {
 	while (!mActors.empty())
 	{
 		delete mActors.back();
 	}
+}
+
+SDL_Texture* Game::GetTexture(std::string& fileName)
+{
+	SDL_Texture* text = nullptr;
+	auto iter = mTextures.find(fileName);
+	if (iter != mTextures.end())
+	{
+		text = iter->second;
+	}
+	else
+	{
+		// 파일로부터 로딩
+		SDL_Surface* surf = IMG_Load(fileName.c_str());
+		if (!surf)
+		{
+			SDL_Log("Failed to load texture file %s", fileName.c_str());
+			return nullptr;
+		}
+		// 텍스쳐 생성
+		text = SDL_CreateTextureFromSurface(mRenderer, surf);
+		// SDL_Surface를 해제
+		SDL_FreeSurface(surf);
+		if (!text)
+		{
+			SDL_Log("Failed to convert surface to texture for %s", fileName.c_str());
+			return nullptr;
+		}
+		// 파일로부터 가져온 텍스쳐를 mTextures에 저장
+		mTextures.emplace(fileName, text);
+	}
+
+	return text;
 }

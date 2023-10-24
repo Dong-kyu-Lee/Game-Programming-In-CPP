@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <vector>
+#include <unordered_map>
 
 class Game
 {
@@ -15,12 +16,14 @@ public:
 
 	void AddActor(class Actor* actor);
 	void RemoveActor(class Actor* actor);
+	SDL_Texture* GetTexture(std::string& fileName);
 
 private:
 	// 게임 루프를 위한 헬퍼 함수
 	void ProcessInput();
 	void UpdateGame();
 	void GenerateOutput();
+	void LoadData();
 	void UnLoadData();
 
 	// SDL이 생성한 윈도우
@@ -37,4 +40,6 @@ private:
 	std::vector<class Actor*> mPendingActors;
 	// 액터의 갱신(Update) 여부를 나타내는 변수
 	bool mUpdatingActors;
+	// 파일 이름(Key)과 텍스쳐(Value) 쌍을 저장한 맵
+	std::unordered_map<std::string, SDL_Texture*> mTextures;
 };
