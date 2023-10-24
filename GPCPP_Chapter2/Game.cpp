@@ -1,12 +1,47 @@
 #include "Game.h"
+#include "Actor.h"
 #include <math.h>
 
 const int thickness = 15;
 const int paddleH = 100;
 
-Game::Game() : mTicksCount(0), mIsRunning(true), mWindow(nullptr), mRenderer(nullptr)
+Game::Game() 
+: mTicksCount(0)
+, mIsRunning(true)
+, mWindow(nullptr)
+, mRenderer(nullptr)
+, mUpdatingActors(false)
 {
 
+}
+
+void Game::AddActor(class Actor* actor)
+{
+	// 액터가 갱신 중이라면 대기 벡터에 추가
+	if (mUpdatingActors)
+	{
+		mPendingActors.emplace_back(actor);
+	}
+	else
+	{
+		mActors.emplace_back(actor);
+	}
+}
+
+void Game::RemoveActor(class Actor* actor)
+{
+	auto iter = std::find(mPendingActors.begin(), mPendingActors.end(), actor);
+	if (iter != mPendingActors.end())
+	{
+		std::iter_swap(iter, mPendingActors.end() - 1);
+		mPendingActors.pop_back();
+	}
+	iter = std::find(mActors.begin(), mActors.end(), actor);
+	if (iter != mActors.end())
+	{
+		std::iter_swap(iter, mActors.end() - 1);
+		mActors.pop_back();
+	}
 }
 
 // 함수 초기화에 성공하면 true, 그렇지 않으면 false
@@ -47,13 +82,12 @@ bool Game::Initialize()
 		return false;
 	}
 
-
-
 	return true;
 }
 
 void Game::Shutdown()
 {
+	UnLoadData(); // Actor 객체 해제
 	SDL_DestroyWindow(mWindow); // SDL_Window 객체 해제
 	SDL_DestroyRenderer(mRenderer); // SDL_Renderer 객체 해제
 	SDL_Quit(); // SDL 종료
@@ -104,6 +138,34 @@ void Game::UpdateGame()
 
 	// delta time을 최대 0.05초까지만 갖게 함
 	if (deltaTime > 0.05f) deltaTime = 0.05f;
+
+	// mActors의 모든 액터를 Update
+	mUpdatingActors = true;
+	for (auto actor : mActors)
+	{
+		actor->Update(deltaTime);
+	}
+	mUpdatingActors = false;
+
+	// 대기 벡터의 액터를 mActors로 이동
+	for (auto pending : mPendingActors)
+	{
+		mActors.emplace_back(pending);
+	}
+
+	// 죽은 액터 해제
+	std::vector<Actor*> deadActors;
+	for (auto actor : mActors)
+	{
+		if (actor->GetState() == Actor::EDead)
+		{
+			deadActors.emplace_back(actor);
+		}
+	}
+	for (auto actor : deadActors)
+	{
+		delete actor;
+	}
 }
 
 void Game::GenerateOutput() 
@@ -115,4 +177,12 @@ void Game::GenerateOutput()
 	SDL_RenderClear(mRenderer); // 지정한 색상으로 후면 버퍼를 클리어함
 
 	SDL_RenderPresent(mRenderer); // 전면 버퍼와 후면 버퍼 교환
+}
+
+void Game::UnLoadData()
+{
+	while (!mActors.empty())
+	{
+		delete mActors.back();
+	}
 }
