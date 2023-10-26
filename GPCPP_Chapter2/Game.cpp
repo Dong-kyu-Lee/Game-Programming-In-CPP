@@ -157,6 +157,11 @@ void Game::GenerateOutput()
 	);
 	SDL_RenderClear(mRenderer); // 지정한 색상으로 후면 버퍼를 클리어함
 
+	for (auto x : mSprites)
+	{
+		x->Draw(mRenderer);
+	}
+
 	SDL_RenderPresent(mRenderer); // 전면 버퍼와 후면 버퍼 교환
 }
 
