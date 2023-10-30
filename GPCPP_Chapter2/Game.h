@@ -46,4 +46,7 @@ private:
 	std::unordered_map<std::string, SDL_Texture*> mTextures;
 	// 그릴 Sprite를 저장한 벡터
 	std::vector<class SpriteComponent*> mSprites;
+
+	// 플레이어 객체
+	class Skull* mSkull;
 };

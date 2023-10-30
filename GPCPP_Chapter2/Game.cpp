@@ -196,6 +196,9 @@ void Game::RemoveActor(class Actor* actor)
 
 void Game::LoadData()
 {
+	// 플레이어 로드
+
+	// 배경 액터 로드
 
 }
 
