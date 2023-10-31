@@ -1,9 +1,11 @@
 #include "Actor.h"
+#include "Math.h"
 #include "Game.h"
 #include "Component.h"
 
 Actor::Actor(Game* game)
 	:mGame(game)
+	, mPosition(Vector2::Zero)
 	,mState(State::EActive)
 	,mScale(1.0f)
 	,mRotation(0.0f)

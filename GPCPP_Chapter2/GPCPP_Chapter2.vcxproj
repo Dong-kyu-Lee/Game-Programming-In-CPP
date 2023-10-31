@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Game-Programming-In-CPP\External\SDL\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Game-Programming-In-CPP\External\SDL\include;D:\Game-Programming-In-CPP\GPCPP_Chapter2\Assets</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,6 +153,8 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Math.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Skull.h" />
     <ClInclude Include="SpriteComponent.h" />
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +165,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Math.cpp" />
+    <ClCompile Include="Skull.cpp" />
     <ClCompile Include="SpriteComponent.cpp" />
   </ItemGroup>
   <ItemGroup>

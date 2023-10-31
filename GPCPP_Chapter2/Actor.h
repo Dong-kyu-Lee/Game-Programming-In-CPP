@@ -17,7 +17,7 @@ public:
 	// 액터에 부착된 모든 컴포넌트를 업데이트
 	void UpdateComponents(float deltaTime);
 	// 특정 액터에 특화된 Update 코드
-	void UpdateActor(float deltaTime);
+	virtual void UpdateActor(float deltaTime);
 
 	// Getter/Setter
 	State GetState() const { return mState; }

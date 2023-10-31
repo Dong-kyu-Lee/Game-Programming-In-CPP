@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Actor.h"
+#include "Skull.h"
 #include "SDL_image.h"
 #include "SpriteComponent.h"
 #include <math.h>
@@ -62,6 +63,8 @@ bool Game::Initialize()
 	}
 
 	LoadData();
+
+	mTicksCount = SDL_GetTicks();
 
 	return true;
 }
@@ -157,9 +160,9 @@ void Game::GenerateOutput()
 	);
 	SDL_RenderClear(mRenderer); // 지정한 색상으로 후면 버퍼를 클리어함
 
-	for (auto x : mSprites)
+	for (auto sprite : mSprites)
 	{
-		x->Draw(mRenderer);
+		sprite->Draw(mRenderer);
 	}
 
 	SDL_RenderPresent(mRenderer); // 전면 버퍼와 후면 버퍼 교환
@@ -197,7 +200,9 @@ void Game::RemoveActor(class Actor* actor)
 void Game::LoadData()
 {
 	// 플레이어 로드
-
+	mSkull = new Skull(this);
+	mSkull->SetPosition(Vector2(100.0f, 384.0f));
+	mSkull->SetScale(1.5f);
 	// 배경 액터 로드
 
 }
@@ -210,7 +215,7 @@ void Game::UnLoadData()
 	}
 }
 
-SDL_Texture* Game::GetTexture(std::string& fileName)
+SDL_Texture* Game::GetTexture(const std::string& fileName)
 {
 	SDL_Texture* text = nullptr;
 	auto iter = mTextures.find(fileName);
