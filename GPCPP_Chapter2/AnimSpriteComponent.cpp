@@ -3,7 +3,7 @@
 AnimSpriteComponent::AnimSpriteComponent(Actor* owner, int drawOrder)
 	:SpriteComponent(owner, drawOrder)
 	,mCurrFrame(0)
-	,mAnimFPS(0)
+	,mAnimFPS(24.0f)
 {
 }
 

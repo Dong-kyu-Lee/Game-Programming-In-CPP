@@ -107,6 +107,8 @@ void Game::ProcessInput()
 	{
 		mIsRunning = false;
 	}
+
+	mSkull->PressKeyboard(state);
 }
 
 void Game::UpdateGame() 
@@ -213,6 +215,13 @@ void Game::UnLoadData()
 	{
 		delete mActors.back();
 	}
+
+	// Destory textures
+	for (auto x : mTextures)
+	{
+		SDL_DestroyTexture(x.second);
+	}
+	mTextures.clear();
 }
 
 SDL_Texture* Game::GetTexture(const std::string& fileName)
@@ -268,4 +277,7 @@ void Game::AddSprite(SpriteComponent* sprite)
 
 void Game::RemoveSprite(SpriteComponent* sprite)
 {
+	// (We can't swap because it ruins ordering)
+	auto iter = std::find(mSprites.begin(), mSprites.end(), sprite);
+	mSprites.erase(iter);
 }

@@ -10,24 +10,24 @@ Skull::Skull(Game* game)
 	AnimSpriteComponent* asc = new AnimSpriteComponent(this);
 	std::vector<SDL_Texture*> anims = 
 	{
-		game->GetTexture("Asset/Character01.png"),
-		game->GetTexture("Asset/Character02.png"),
-		game->GetTexture("Asset/Character03.png"),
-		game->GetTexture("Asset/Character04.png"),
-		game->GetTexture("Asset/Character05.png"),
-		game->GetTexture("Asset/Character06.png"),
-		game->GetTexture("Asset/Character07.png"),
-		game->GetTexture("Asset/Character08.png"),
-		game->GetTexture("Asset/Character09.png"),
-		game->GetTexture("Asset/Character10.png"),
-		game->GetTexture("Asset/Character11.png"),
-		game->GetTexture("Asset/Character12.png"),
-		game->GetTexture("Asset/Character13.png"),
-		game->GetTexture("Asset/Character14.png"),
-		game->GetTexture("Asset/Character15.png"),
-		game->GetTexture("Asset/Character16.png"),
-		game->GetTexture("Asset/Character17.png"),
-		game->GetTexture("Asset/Character18.png")
+		game->GetTexture("Assets/Character01.png"),
+		game->GetTexture("Assets/Character02.png"),
+		game->GetTexture("Assets/Character03.png"),
+		game->GetTexture("Assets/Character04.png"),
+		game->GetTexture("Assets/Character05.png"),
+		game->GetTexture("Assets/Character06.png"),
+		game->GetTexture("Assets/Character07.png"),
+		game->GetTexture("Assets/Character08.png"),
+		game->GetTexture("Assets/Character09.png"),
+		game->GetTexture("Assets/Character10.png"),
+		game->GetTexture("Assets/Character11.png"),
+		game->GetTexture("Assets/Character12.png"),
+		game->GetTexture("Assets/Character13.png"),
+		game->GetTexture("Assets/Character14.png"),
+		game->GetTexture("Assets/Character15.png"),
+		game->GetTexture("Assets/Character16.png"),
+		game->GetTexture("Assets/Character17.png"),
+		game->GetTexture("Assets/Character18.png")
 	};
 	asc->SetAnimTextures(anims);
 }
@@ -62,6 +62,7 @@ void Skull::UpdateActor(float deltaTime)
 void Skull::PressKeyboard(const uint8_t* state)
 {
 	mRightSpeed = 0.0f;
+	mDownSpeed = 0.0f;
 
 	if (state[SDL_SCANCODE_A])
 	{
