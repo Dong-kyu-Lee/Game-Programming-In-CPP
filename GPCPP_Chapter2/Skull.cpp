@@ -1,13 +1,14 @@
 #include "Skull.h"
 #include "Game.h"
-#include "AnimSpriteComponent.h"
 
 Skull::Skull(Game* game)
 	:Actor(game)
+	, mAnim(nullptr)
 	, mRightSpeed(0.0f)
 	, mDownSpeed(0.0f)
+	, mAnimState(AnimState::IDLE)
 {
-	AnimSpriteComponent* asc = new AnimSpriteComponent(this);
+	mAnim = new AnimSpriteComponent(this);
 	std::vector<SDL_Texture*> anims = 
 	{
 		game->GetTexture("Assets/Character01.png"),
@@ -29,7 +30,8 @@ Skull::Skull(Game* game)
 		game->GetTexture("Assets/Character17.png"),
 		game->GetTexture("Assets/Character18.png")
 	};
-	asc->SetAnimTextures(anims);
+	mAnim->SetAnimTextures(anims);
+	mAnim->SetAnimFrameRange(0, 1);
 }
 
 void Skull::UpdateActor(float deltaTime)
@@ -66,22 +68,46 @@ void Skull::PressKeyboard(const uint8_t* state)
 
 	if (state[SDL_SCANCODE_A])
 	{
+		if (mAnimState != WALK)
+		{
+			mAnim->SetAnimFrameRange(0, 5);
+			mAnimState = WALK;
+		}
 		mRightSpeed -= 250.0f;
 	}
 	if (state[SDL_SCANCODE_D])
 	{
+		if (mAnimState != WALK)
+		{
+			mAnim->SetAnimFrameRange(0, 5);
+			mAnimState = WALK;
+		}
 		mRightSpeed += 250.0f;
 	}
 	if (state[SDL_SCANCODE_W])
 	{
+		if (mAnimState != WALK)
+		{
+			mAnim->SetAnimFrameRange(0, 5);
+			mAnimState = WALK;
+		}
 		mDownSpeed -= 250.0f;
 	}
 	if (state[SDL_SCANCODE_S])
 	{
+		if (mAnimState != WALK)
+		{
+			mAnim->SetAnimFrameRange(0, 5);
+			mAnimState = WALK;
+		}
 		mDownSpeed += 250.0f;
 	}
 	if (state[SDL_SCANCODE_SPACE])
 	{
-
+		if (mAnimState != ATTACK)
+		{
+			mAnim->SetAnimFrameRange(15, 17);
+			mAnimState = ATTACK;
+		}
 	}
 }
