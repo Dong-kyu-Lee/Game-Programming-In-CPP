@@ -11,6 +11,7 @@
 #include <algorithm>
 #include "Actor.h"
 #include "SpriteComponent.h"
+#include "Asteroid.h"
 #include "Ship.h"
 #include "BGSpriteComponent.h"
 
@@ -153,6 +154,13 @@ void Game::GenerateOutput()
 
 void Game::LoadData()
 {
+	// Create Asteroids
+	const int numAsteroids = 20;
+	for (int i = 0; i < numAsteroids; i++)
+	{
+		new Asteroid(this);
+	}
+
 	// Create player's ship
 	mShip = new Ship(this);
 	mShip->SetPosition(Vector2(100.0f, 384.0f));
