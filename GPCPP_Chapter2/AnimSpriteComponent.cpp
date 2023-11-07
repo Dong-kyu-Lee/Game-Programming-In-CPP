@@ -16,7 +16,7 @@ void AnimSpriteComponent::Update(float deltaTime)
 	if (mAnimTextures.size() > 0)
 	{
 		mCurrFrame += mAnimFPS * deltaTime;
-
+		// 선택한 범위의 시작 프레임과 끝 프레임의 텍스쳐를 전달한다
 		while (mCurrFrame >= mEndFrame + 1)
 		{
 			mCurrFrame -= (mEndFrame - mStartFrame);
@@ -42,10 +42,6 @@ void AnimSpriteComponent::SetAnimFrameRange(int startIndex, int endIndex)
 {
 	if (mAnimTextures.size() > 0)
 	{
-		// 이미 실행중인 애니메이션의 프레임인지 판단하는 조건문
-		/*if (mCurrFrame > startIndex && mCurrFrame < endIndex)
-			return;*/
-
 		if (startIndex >= 0)
 		{
 			mStartFrame = startIndex;

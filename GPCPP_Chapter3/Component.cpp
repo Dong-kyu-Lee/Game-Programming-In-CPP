@@ -6,16 +6,22 @@
 // See LICENSE in root directory for full details.
 // ----------------------------------------------------------------
 
-#include "Game.h"
+#include "Component.h"
+#include "Actor.h"
 
-int main(int argc, char** argv)
+Component::Component(Actor* owner, int updateOrder)
+	:mOwner(owner)
+	,mUpdateOrder(updateOrder)
 {
-	Game game;
-	bool success = game.Initialize();
-	if (success)
-	{
-		game.RunLoop();
-	}
-	game.Shutdown();
-	return 0;
+	// Add to actor's vector of components
+	mOwner->AddComponent(this);
+}
+
+Component::~Component()
+{
+	mOwner->RemoveComponent(this);
+}
+
+void Component::Update(float deltaTime)
+{
 }
