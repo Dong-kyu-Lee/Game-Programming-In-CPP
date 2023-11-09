@@ -12,7 +12,7 @@ Asteroid::Asteroid(Game* game)
 	SetRotation(Random::GetFloatRange(0.0f, Math::TwoPi));
 
 	SpriteComponent* sc = new SpriteComponent(this);
-	sc->SetTexture(game->GetTexture("Assets/Astroid.png"));
+	sc->SetTexture(game->GetTexture("Assets/Asteroid.png"));
 	// 이동 컴포넌트를 생성하고 전방 속도를 설정한다.
 	MoveComponent* mc = new MoveComponent(this);
 	mc->SetForwardSpeed(150.f);

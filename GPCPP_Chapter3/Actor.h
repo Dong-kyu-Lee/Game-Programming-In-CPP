@@ -28,9 +28,13 @@ public:
 	void UpdateComponents(float deltaTime);
 	// Any actor-specific update code (overridable)
 	virtual void UpdateActor(float deltaTime);
+	// Game이 호출하는 ProcessInput 함수
+	void ProcessInput(const uint8_t* keyState);
+	// 특정 Actor을 위한 입력 코드
+	virtual void ActorInput(const uint8_t* keyState);
 
 	// Actor의 전방 벡터를 반환
-	Vector2 GetForward() const { return Vector2(Math::Cos(mRotation), Math::Sin(mRotation)); }
+	Vector2 GetForward() const { return Vector2(Math::Cos(mRotation), -Math::Sin(mRotation)); }
 	// Getters/setters
 	const Vector2& GetPosition() const { return mPosition; }
 	void SetPosition(const Vector2& pos) { mPosition = pos; }
