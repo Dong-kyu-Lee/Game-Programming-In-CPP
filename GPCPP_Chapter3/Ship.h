@@ -17,5 +17,7 @@ public:
 private:
 	float mRightSpeed;
 	float mDownSpeed;
+	float mDeadCooldown;
 	float mLaserCooldown;
+	class CircleComponent* mCircle;
 };

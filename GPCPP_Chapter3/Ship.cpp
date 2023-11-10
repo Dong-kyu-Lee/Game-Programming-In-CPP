@@ -9,6 +9,8 @@
 #include "Ship.h"
 #include "SpriteComponent.h"
 #include "InputComponent.h"
+#include "CircleComponent.h"
+#include "Asteroid.h"
 #include "Laser.h"
 #include "Game.h"
 
@@ -27,11 +29,25 @@ Ship::Ship(Game* game)
 	ic->SetCounterClockwiseKey(SDL_SCANCODE_D);
 	ic->SetMaxForwardSpeed(300.0f);
 	ic->SetMaxAngularSpeed(Math::TwoPi);
+
+	mCircle = new CircleComponent(this);
+	mCircle->SetRadius(16.0f);
 }
 
 void Ship::UpdateActor(float deltaTime)
 {
 	mLaserCooldown -= deltaTime;
+
+	for (auto ast : GetGame()->GetAsteroids())
+	{
+		if (Intersect(*mCircle, *(ast->GetCircle())))
+		{
+			ast->SetState(EDead);
+			SetPosition(Vector2(512.0f, 384.0f));
+			SetRotation(Math::PiOver2);
+			break;
+		}
+	}
 }
 
 void Ship::ActorInput(const uint8_t* keyState)
