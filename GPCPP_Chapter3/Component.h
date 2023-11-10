@@ -6,6 +6,7 @@
 // See LICENSE in root directory for full details.
 // ----------------------------------------------------------------
 #include "SDL.h"
+#include "Actor.h"
 
 #pragma once
 class Component

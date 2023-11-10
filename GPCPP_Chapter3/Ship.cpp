@@ -9,12 +9,14 @@
 #include "Ship.h"
 #include "SpriteComponent.h"
 #include "InputComponent.h"
+#include "Laser.h"
 #include "Game.h"
 
 Ship::Ship(Game* game)
 	:Actor(game)
 	,mRightSpeed(0.0f)
 	,mDownSpeed(0.0f)
+	,mLaserCooldown(0.0f)
 {
 	SpriteComponent* sc = new SpriteComponent(this, 150);
 	sc->SetTexture(GetGame()->GetTexture("Assets/Ship.png"));
@@ -29,5 +31,18 @@ Ship::Ship(Game* game)
 
 void Ship::UpdateActor(float deltaTime)
 {
-	
+	mLaserCooldown -= deltaTime;
+}
+
+void Ship::ActorInput(const uint8_t* keyState)
+{
+	if (keyState[SDL_SCANCODE_SPACE] && mLaserCooldown <= 0.0f)
+	{
+		// 레이저를 생성하고 레이저의 위치와 회전값을 설정
+		Laser* laser = new Laser(GetGame());
+		laser->SetPosition(GetPosition());
+		laser->SetRotation(GetRotation());
+
+		mLaserCooldown = 0.5f;
+	}
 }

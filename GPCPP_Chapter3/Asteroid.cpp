@@ -16,8 +16,14 @@ Asteroid::Asteroid(Game* game)
 	// 이동 컴포넌트를 생성하고 전방 속도를 설정한다.
 	MoveComponent* mc = new MoveComponent(this);
 	mc->SetForwardSpeed(150.f);
+
+	mCircle = new CircleComponent(this);
+	mCircle->SetRadius(40.0f);
+
+	game->AddAsteroid(this);
 }
 
 Asteroid::~Asteroid()
 {
+	GetGame()->RemoveAsteroid(this);
 }
