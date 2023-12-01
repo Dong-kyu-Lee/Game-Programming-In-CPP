@@ -68,18 +68,3 @@ public:
 		return "Attack";
 	}
 };
-
-struct WeightedGraphEdge
-{
-	// 간선에 어떤 노드가 연결되어 있는가?
-	WeightedGraphNode* mFrom;
-	WeightedGraphNode* mTo;
-	// 간선의 가중치
-	float mWeight;
-};
-
-struct WeightedGraphNode
-{
-	// 외부로 향하는 간선들를 저장한다.
-	std::vector<WeightedGraphEdge*> mEdges;
-};
