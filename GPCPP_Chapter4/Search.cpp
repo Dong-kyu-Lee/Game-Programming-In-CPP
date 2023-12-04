@@ -16,7 +16,7 @@ struct Graph
 	std::vector<GraphNode*> mNodes;
 };
 
-struct WeightedGraphEdge
+struct WeightedEdge
 {
 	// 간선에 어떤 노드가 연결되어 있는가?
 	WeightedGraphNode* mFrom;
@@ -28,7 +28,12 @@ struct WeightedGraphEdge
 struct WeightedGraphNode
 {
 	// 외부로 향하는 간선들를 저장한다.
-	std::vector<WeightedGraphEdge*> mEdges;
+	std::vector<WeightedEdge*> mEdges;
+};
+
+struct WeightedGraph
+{
+	std::vector<WeightedGraphNode*> mNodes;
 };
 
 // Key : 현재 노드, Value : 부모 노드
@@ -67,4 +72,65 @@ bool BFS(const Graph& graph, const GraphNode* start,
 	}
 
 	return pathFound;
+}
+
+// 노드의 추가 정보
+struct GBFSScratch
+{
+	const WeightedEdge* mParentEdge = nullptr;
+	float mHeuristic = 0.0f;
+	bool mInOpenSet = false;
+	bool mInClosedSet = false;
+};
+
+// 노드에 매핑된 추가 정보
+using GBFSMap = std::unordered_map<const WeightedGraphNode*, GBFSScratch>;
+
+float ComputeHeuristic(const WeightedGraphNode* start, const WeightedGraphNode* goal)
+{
+	return 0.0f;
+}
+
+bool GBFS(const WeightedGraph& g, const WeightedGraphNode* start,
+	const WeightedGraphNode* goal, GBFSMap& outMap)
+{
+	std::vector<const WeightedGraphNode*> openSet;
+	// 시작 노드를 현재 노드로 설정하고 닫힌 집합에 있다고 마킹한다.
+	const WeightedGraphNode* current = start;
+	outMap[current].mInClosedSet = true;
+	do
+	{
+		// 열린 집합에 인접 노드를 추가한다.
+		for (const WeightedEdge* edge : current->mEdges)
+		{
+			GBFSScratch& data = outMap[edge->mTo];
+			// 닫힌 집합에 있는 노드가 아니라면 테스트 필요
+			if (!data.mInClosedSet)
+			{
+				data.mParentEdge = edge;
+				if (!data.mInOpenSet)
+				{
+					data.mHeuristic = ComputeHeuristic(edge->mTo, goal);
+					data.mInOpenSet = true;
+					openSet.emplace_back(edge->mTo);
+				}
+			}
+		}
+
+		if (openSet.empty()) break;
+
+		// 열린 집합에서 가장 낮은 비용을 가진 노드를 찾는다.
+		auto iter = std::min_element(openSet.begin(), openSet.end(),
+			[&outMap](const WeightedGraphNode* a, const WeightedGraphNode* b)
+			{
+				return outMap[a].mHeuristic < outMap[b].mHeuristic;
+			});
+		// 현재 노드로 설정하고 열린 집합에서 닫힌 집합으로 이동시킨다.
+		current = *iter;
+		openSet.erase(iter);
+		outMap[current].mInClosedSet = true;
+		outMap[current].mInOpenSet = false;
+	} while (current != goal);
+	// 경로를 찾았는가?
+	return (current == goal) ? true : false;
 }
