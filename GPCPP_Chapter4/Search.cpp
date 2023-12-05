@@ -134,3 +134,75 @@ bool GBFS(const WeightedGraph& g, const WeightedGraphNode* start,
 	// 경로를 찾았는가?
 	return (current == goal) ? true : false;
 }
+
+struct AStarScratch
+{
+	const WeightedEdge* mParentEdge = nullptr;
+	float mHeuristic = 0.0f;
+	float mActualFromStart = 0.0f;
+	bool mInOpenSet = false;
+	bool mInClosedSet = false;
+};
+
+using AStarMap = std::unordered_map<const WeightedGraphNode*, AStarScratch>;
+
+bool AStar(const WeightedGraph& g, const WeightedGraphNode* start,
+	const WeightedGraphNode* goal, AStarMap& outMap)
+{
+	std::vector<const WeightedGraphNode*> openSet;
+
+	const WeightedGraphNode* current = start;
+	outMap[current].mInClosedSet = true;
+
+	do
+	{
+		for (const WeightedEdge* edge : current->mEdges)
+		{
+			const WeightedGraphNode* neighbor = edge->mTo;
+			// 이 노드의 추가 데이터를 얻는다.
+			AStarScratch& data = outMap[neighbor];
+			// 닫힌 집합이 없는지를 확인
+			if (!data.mInClosedSet)
+			{
+				if (!data.mInOpenSet)
+				{
+					data.mParentEdge = edge;
+					data.mHeuristic = ComputeHeuristic(neighbor, goal);
+					// 실제 비용은 부모의 실제 비용 + 부모에서 자신으로 이동하는 간선의 가중치다.
+					data.mActualFromStart = outMap[current].mActualFromStart +
+						edge->mWeight;
+					data.mInOpenSet = true;
+					openSet.emplace_back(neighbor);
+				}
+				else
+				{
+					// 현재 노드가 부모 노드가 될지를 판단하고자 새로운 실제 비용 계산.
+					float newG = outMap[current].mActualFromStart + edge->mWeight;
+					if (newG < data.mActualFromStart)
+					{
+						// 현재 노드가 이 노드의 부모 노드로 채택됨.
+						data.mParentEdge = edge;
+						data.mActualFromStart = newG;
+					}
+				}
+			}
+		}
+
+		if (openSet.empty()) break;
+
+		auto iter = std::min_element(openSet.begin(), openSet.end(),
+			[&outMap](const WeightedGraphNode* a, const WeightedGraphNode* b)
+			{
+				// f(x) 계산
+				float fOfA = outMap[a].mActualFromStart + outMap[a].mHeuristic;
+				float fOfB = outMap[b].mActualFromStart + outMap[b].mHeuristic;
+				return fOfA < fOfB;
+			});
+		current = *iter;
+		openSet.erase(iter);
+		outMap[*iter].mInClosedSet = true;
+		outMap[*iter].mInOpenSet = true;
+	} while (current != goal);
+
+	return (current == goal) ? true : false;
+}
