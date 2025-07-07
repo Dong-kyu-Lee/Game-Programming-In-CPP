@@ -45,6 +45,6 @@ void SpriteComponent::Draw(SDL_Renderer* renderer)
 void SpriteComponent::SetTexture(SDL_Texture* texture)
 {
 	mTexture = texture;
-	// 텍스쳐의 너비와 높이를 얻자
+	// 텍스쳐의 너비와 높이를 얻자(mTexWidth, mTexHeight에 저장)
 	SDL_QueryTexture(texture, nullptr, nullptr, &mTexWidth, &mTexHeight);
 }

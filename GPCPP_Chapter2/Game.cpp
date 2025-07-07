@@ -4,6 +4,7 @@
 #include "SDL_image.h"
 #include "SpriteComponent.h"
 #include <math.h>
+#include <algorithm>
 
 const int thickness = 15;
 const int paddleH = 100;
