@@ -1,11 +1,18 @@
+// ----------------------------------------------------------------
+// From Game Programming in C++ by Sanjay Madhav
+// Copyright (C) 2017 Sanjay Madhav. All rights reserved.
+// 
+// Released under the BSD License
+// See LICENSE in root directory for full details.
+// ----------------------------------------------------------------
+
 #include "AnimSpriteComponent.h"
+#include "Math.h"
 
 AnimSpriteComponent::AnimSpriteComponent(Actor* owner, int drawOrder)
 	:SpriteComponent(owner, drawOrder)
-	,mCurrFrame(0)
-	,mAnimFPS(10.0f)
-	,mStartFrame(0)
-	,mEndFrame(0)
+	, mCurrFrame(0.0f)
+	, mAnimFPS(24.0f)
 {
 }
 
@@ -15,14 +22,17 @@ void AnimSpriteComponent::Update(float deltaTime)
 
 	if (mAnimTextures.size() > 0)
 	{
+		// Update the current frame based on frame rate
+		// and delta time
 		mCurrFrame += mAnimFPS * deltaTime;
-		// 선택한 범위의 시작 프레임과 끝 프레임의 텍스쳐를 전달한다
-		while (mCurrFrame >= mEndFrame + 1)
+		
+		// Wrap current frame if needed
+		while (mCurrFrame >= mAnimTextures.size())
 		{
-			mCurrFrame -= (mEndFrame - mStartFrame);
+			mCurrFrame -= mAnimTextures.size();
 		}
 
-		// 현재 택스처 설정
+		// Set the current texture
 		SetTexture(mAnimTextures[static_cast<int>(mCurrFrame)]);
 	}
 }
@@ -30,26 +40,10 @@ void AnimSpriteComponent::Update(float deltaTime)
 void AnimSpriteComponent::SetAnimTextures(const std::vector<SDL_Texture*>& textures)
 {
 	mAnimTextures = textures;
-	
 	if (mAnimTextures.size() > 0)
 	{
+		// Set the active texture to first frame
 		mCurrFrame = 0.0f;
-		SetTexture(textures[mCurrFrame]);
-	}
-}
-
-void AnimSpriteComponent::SetAnimFrameRange(int startIndex, int endIndex)
-{
-	if (mAnimTextures.size() > 0)
-	{
-		if (startIndex >= 0)
-		{
-			mStartFrame = startIndex;
-			mCurrFrame = mStartFrame;
-		}
-		if (endIndex < mAnimTextures.size())
-		{
-			mEndFrame = endIndex;
-		}
+		SetTexture(mAnimTextures[0]);
 	}
 }

@@ -1,132 +1,111 @@
+// ----------------------------------------------------------------
+// From Game Programming in C++ by Sanjay Madhav
+// Copyright (C) 2017 Sanjay Madhav. All rights reserved.
+// 
+// Released under the BSD License
+// See LICENSE in root directory for full details.
+// ----------------------------------------------------------------
+
 #include "Game.h"
-#include "Actor.h"
-#include "Skull.h"
 #include "SDL_image.h"
-#include "SpriteComponent.h"
-#include <math.h>
 #include <algorithm>
+#include "Actor.h"
+#include "SpriteComponent.h"
+#include "Ship.h"
+#include "BGSpriteComponent.h"
 
-const int thickness = 15;
-const int paddleH = 100;
-
-Game::Game() 
-: mTicksCount(0)
-, mIsRunning(true)
-, mWindow(nullptr)
-, mRenderer(nullptr)
-, mUpdatingActors(false)
+Game::Game()
+:mWindow(nullptr)
+,mRenderer(nullptr)
+,mIsRunning(true)
+,mUpdatingActors(false)
 {
-
+	
 }
 
-// 함수 초기화에 성공하면 true, 그렇지 않으면 false
 bool Game::Initialize()
 {
-	// sdlResult가 0이 아니면 SDL 라이브러리 초기화 실패
-	int sdlResult = SDL_Init(SDL_INIT_AUDIO);
-
-	if (sdlResult != 0)
+	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0)
 	{
-		SDL_Log("Unable to initialize SDL : %s", SDL_GetError());
+		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
-
-	mWindow = SDL_CreateWindow(
-		"Game Programming In C++ (Chapter 1)", // 윈도우 제목
-		100,	// 윈도우의 좌측 상단 x좌표
-		100,	// 윈도우의 좌측 상단 y좌표
-		1024,	// 윈도우 너비
-		768,	// 윈도우 높이
-		0);		// 플래그 (0은 어떠한 플래그도 설정되지 않음을 의미)
 	
+	mWindow = SDL_CreateWindow("Game Programming in C++ (Chapter 2)", 100, 100, 1024, 768, 0);
 	if (!mWindow)
 	{
-		SDL_Log("Failed to create window : %s", SDL_GetError());
+		SDL_Log("Failed to create window: %s", SDL_GetError());
 		return false;
 	}
-
-	mRenderer = SDL_CreateRenderer(
-		mWindow, // 렌더링을 위해 생성한 윈도우
-		-1,			// SDL이 글카를 결정하라는 의미. 게임이 사용하는 윈도우가 여러개일 때 의미있음. 일반적으로 -1
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC // 가속화된 렌더러 사용 여부(좋은 글카를 사용하는지) | VSYNC를 제공 여부
-	);
-
+	
+	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (!mRenderer)
 	{
-		SDL_Log("Failed to create renderer : %s", SDL_GetError());
+		SDL_Log("Failed to create renderer: %s", SDL_GetError());
 		return false;
 	}
-
-	if (IMG_Init(IMG_INIT_PNG) == 0) 
+	
+	if (IMG_Init(IMG_INIT_PNG) == 0)
 	{
-		SDL_Log("Failed to create SDL image : %s", SDL_GetError());
+		SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
 		return false;
 	}
 
 	LoadData();
 
 	mTicksCount = SDL_GetTicks();
-
+	
 	return true;
-}
-
-void Game::Shutdown()
-{
-	UnLoadData(); // Actor 객체 해제
-	SDL_DestroyWindow(mWindow); // SDL_Window 객체 해제
-	SDL_DestroyRenderer(mRenderer); // SDL_Renderer 객체 해제
-	SDL_Quit(); // SDL 종료
 }
 
 void Game::RunLoop()
 {
 	while (mIsRunning)
 	{
-		ProcessInput(); // 키 입력 등의 input
-		UpdateGame(); // 게임 상태 업데이트
-		GenerateOutput(); // 업데이트 된 상태를 출력
+		ProcessInput();
+		UpdateGame();
+		GenerateOutput();
 	}
 }
 
-void Game::ProcessInput() 
+void Game::ProcessInput()
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
 	{
 		switch (event.type)
 		{
-		case SDL_QUIT:
-			mIsRunning = false;
-			break;
+			case SDL_QUIT:
+				mIsRunning = false;
+				break;
 		}
 	}
-
-	// 현재 키보드 키들의 상태를 나타내는 변수
+	
 	const Uint8* state = SDL_GetKeyboardState(NULL);
-	// ESC 누르면 루프 종료
 	if (state[SDL_SCANCODE_ESCAPE])
 	{
 		mIsRunning = false;
 	}
 
-	mSkull->PressKeyboard(state);
+	// Process ship input
+	mShip->ProcessKeyboard(state);
 }
 
-void Game::UpdateGame() 
+void Game::UpdateGame()
 {
-	// 마지막 프레임 이후로 16ms가 지날 때까지 대기
-	while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16));
+	// Compute delta time
+	// Wait until 16ms has elapsed since last frame
+	while (!SDL_TICKS_PASSED(SDL_GetTicks(), mTicksCount + 16))
+		;
 
-	// delta time은 현재 프레임 tick값과 이전 프레임 tick값의 차다.
-	// 차를 초 단위로 변환한다.
 	float deltaTime = (SDL_GetTicks() - mTicksCount) / 1000.0f;
-	// 다음 프레임을 위해 tick 값 갱신
+	if (deltaTime > 0.05f)
+	{
+		deltaTime = 0.05f;
+	}
 	mTicksCount = SDL_GetTicks();
 
-	// delta time을 최대 0.05초까지만 갖게 함
-	if (deltaTime > 0.05f) deltaTime = 0.05f;
-
-	// mActors의 모든 액터를 Update
+	// Update all actors
 	mUpdatingActors = true;
 	for (auto actor : mActors)
 	{
@@ -134,13 +113,14 @@ void Game::UpdateGame()
 	}
 	mUpdatingActors = false;
 
-	// 대기 벡터의 액터를 mActors로 이동
+	// Move any pending actors to mActors
 	for (auto pending : mPendingActors)
 	{
 		mActors.emplace_back(pending);
 	}
+	mPendingActors.clear();
 
-	// 죽은 액터 해제
+	// Add any dead actors to a temp vector
 	std::vector<Actor*> deadActors;
 	for (auto actor : mActors)
 	{
@@ -149,31 +129,120 @@ void Game::UpdateGame()
 			deadActors.emplace_back(actor);
 		}
 	}
+
+	// Delete dead actors (which removes them from mActors)
 	for (auto actor : deadActors)
 	{
 		delete actor;
 	}
 }
 
-void Game::GenerateOutput() 
+void Game::GenerateOutput()
 {
-	// 렌더링할 색상 지정
-	SDL_SetRenderDrawColor(
-		mRenderer, 0, 0, 255, 255 // R G B A
-	);
-	SDL_RenderClear(mRenderer); // 지정한 색상으로 후면 버퍼를 클리어함
-
+	SDL_SetRenderDrawColor(mRenderer, 0, 0, 0, 255);
+	SDL_RenderClear(mRenderer);
+	
+	// Draw all sprite components
 	for (auto sprite : mSprites)
 	{
 		sprite->Draw(mRenderer);
 	}
 
-	SDL_RenderPresent(mRenderer); // 전면 버퍼와 후면 버퍼 교환
+	SDL_RenderPresent(mRenderer);
 }
 
-void Game::AddActor(class Actor* actor)
+void Game::LoadData()
 {
-	// 액터가 갱신 중이라면 대기 벡터에 추가
+	// Create player's ship
+	mShip = new Ship(this);
+	mShip->SetPosition(Vector2(100.0f, 384.0f));
+	mShip->SetScale(1.5f);
+
+	// Create actor for the background (this doesn't need a subclass)
+	Actor* temp = new Actor(this);
+	temp->SetPosition(Vector2(512.0f, 384.0f));
+	// Create the "far back" background
+	BGSpriteComponent* bg = new BGSpriteComponent(temp);
+	bg->SetScreenSize(Vector2(1024.0f, 768.0f));
+	std::vector<SDL_Texture*> bgtexs = {
+		GetTexture("Assets/Farback01.png"),
+		GetTexture("Assets/Farback02.png")
+	};
+	bg->SetBGTextures(bgtexs);
+	bg->SetScrollSpeed(-100.0f);
+	// Create the closer background
+	bg = new BGSpriteComponent(temp, 50);
+	bg->SetScreenSize(Vector2(1024.0f, 768.0f));
+	bgtexs = {
+		GetTexture("Assets/Stars.png"),
+		GetTexture("Assets/Stars.png")
+	};
+	bg->SetBGTextures(bgtexs);
+	bg->SetScrollSpeed(-200.0f);
+}
+
+void Game::UnloadData()
+{
+	// Delete actors
+	// Because ~Actor calls RemoveActor, have to use a different style loop
+	while (!mActors.empty())
+	{
+		delete mActors.back();
+	}
+
+	// Destroy textures
+	for (auto i : mTextures)
+	{
+		SDL_DestroyTexture(i.second);
+	}
+	mTextures.clear();
+}
+
+SDL_Texture* Game::GetTexture(const std::string& fileName)
+{
+	SDL_Texture* tex = nullptr;
+	// Is the texture already in the map?
+	auto iter = mTextures.find(fileName);
+	if (iter != mTextures.end())
+	{
+		tex = iter->second;
+	}
+	else
+	{
+		// Load from file
+		SDL_Surface* surf = IMG_Load(fileName.c_str());
+		if (!surf)
+		{
+			SDL_Log("Failed to load texture file %s", fileName.c_str());
+			return nullptr;
+		}
+
+		// Create texture from surface
+		tex = SDL_CreateTextureFromSurface(mRenderer, surf);
+		SDL_FreeSurface(surf);
+		if (!tex)
+		{
+			SDL_Log("Failed to convert surface to texture for %s", fileName.c_str());
+			return nullptr;
+		}
+
+		mTextures.emplace(fileName.c_str(), tex);
+	}
+	return tex;
+}
+
+void Game::Shutdown()
+{
+	UnloadData();
+	IMG_Quit();
+	SDL_DestroyRenderer(mRenderer);
+	SDL_DestroyWindow(mWindow);
+	SDL_Quit();
+}
+
+void Game::AddActor(Actor* actor)
+{
+	// If we're updating actors, need to add to pending
 	if (mUpdatingActors)
 	{
 		mPendingActors.emplace_back(actor);
@@ -184,88 +253,36 @@ void Game::AddActor(class Actor* actor)
 	}
 }
 
-void Game::RemoveActor(class Actor* actor)
+void Game::RemoveActor(Actor* actor)
 {
+	// Is it in pending actors?
 	auto iter = std::find(mPendingActors.begin(), mPendingActors.end(), actor);
 	if (iter != mPendingActors.end())
 	{
+		// Swap to end of vector and pop off (avoid erase copies)
 		std::iter_swap(iter, mPendingActors.end() - 1);
 		mPendingActors.pop_back();
 	}
+
+	// Is it in actors?
 	iter = std::find(mActors.begin(), mActors.end(), actor);
 	if (iter != mActors.end())
 	{
+		// Swap to end of vector and pop off (avoid erase copies)
 		std::iter_swap(iter, mActors.end() - 1);
 		mActors.pop_back();
 	}
 }
 
-void Game::LoadData()
-{
-	// 플레이어 로드
-	mSkull = new Skull(this);
-	mSkull->SetPosition(Vector2(100.0f, 384.0f));
-	mSkull->SetScale(1.5f);
-	// 배경 액터 로드
-
-}
-
-void Game::UnLoadData()
-{
-	while (!mActors.empty())
-	{
-		delete mActors.back();
-	}
-
-	// Destory textures
-	for (auto x : mTextures)
-	{
-		SDL_DestroyTexture(x.second);
-	}
-	mTextures.clear();
-}
-
-SDL_Texture* Game::GetTexture(const std::string& fileName)
-{
-	SDL_Texture* text = nullptr;
-	auto iter = mTextures.find(fileName);
-	if (iter != mTextures.end())
-	{
-		text = iter->second;
-	}
-	else
-	{
-		// 파일로부터 로딩
-		SDL_Surface* surf = IMG_Load(fileName.c_str());
-		if (!surf)
-		{
-			SDL_Log("Failed to load texture file %s", fileName.c_str());
-			return nullptr;
-		}
-		// 텍스쳐 생성
-		text = SDL_CreateTextureFromSurface(mRenderer, surf);
-		// SDL_Surface를 해제
-		SDL_FreeSurface(surf);
-		if (!text)
-		{
-			SDL_Log("Failed to convert surface to texture for %s", fileName.c_str());
-			return nullptr;
-		}
-		// 파일로부터 가져온 텍스쳐를 mTextures에 저장
-		mTextures.emplace(fileName, text);
-	}
-
-	return text;
-}
-
-// 그릴 스프라이트를 Game 객체의 sprte 벡터에 추가
 void Game::AddSprite(SpriteComponent* sprite)
 {
-	// 정렬된 벡터에서 삽입해야 될 위치를 찾는다.
-	// (자신보다 그리기 순서값이 큰(나중에 그려질) 최초 요소)
+	// Find the insertion point in the sorted vector
+	// (The first element with a higher draw order than me)
 	int myDrawOrder = sprite->GetDrawOrder();
 	auto iter = mSprites.begin();
-	for (; iter != mSprites.end(); ++iter)
+	for ( ;
+		iter != mSprites.end();
+		++iter)
 	{
 		if (myDrawOrder < (*iter)->GetDrawOrder())
 		{
@@ -273,6 +290,7 @@ void Game::AddSprite(SpriteComponent* sprite)
 		}
 	}
 
+	// Inserts element before position of iterator
 	mSprites.insert(iter, sprite);
 }
 

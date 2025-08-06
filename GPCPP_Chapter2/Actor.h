@@ -1,48 +1,60 @@
+// ----------------------------------------------------------------
+// From Game Programming in C++ by Sanjay Madhav
+// Copyright (C) 2017 Sanjay Madhav. All rights reserved.
+// 
+// Released under the BSD License
+// See LICENSE in root directory for full details.
+// ----------------------------------------------------------------
+
 #pragma once
 #include <vector>
 #include "Math.h"
-
 class Actor
 {
 public:
 	enum State
 	{
-		EActive, EPaused, EDead
+		EActive,
+		EPaused,
+		EDead
 	};
-	// 생성자/소멸자
+
 	Actor(class Game* game);
 	virtual ~Actor();
-	// 게임에서 호출하는 Update 함수
+
+	// Update function called from Game (not overridable)
 	void Update(float deltaTime);
-	// 액터에 부착된 모든 컴포넌트를 업데이트
+	// Updates all the components attached to the actor (not overridable)
 	void UpdateComponents(float deltaTime);
-	// 특정 액터에 특화된 Update 코드
+	// Any actor-specific update code (overridable)
 	virtual void UpdateActor(float deltaTime);
 
-	// Getter/Setter
-	State GetState() const { return mState; }
-	void SetState(State state) { mState = state; }
+	// Getters/setters
+	const Vector2& GetPosition() const { return mPosition; }
+	void SetPosition(const Vector2& pos) { mPosition = pos; }
 	float GetScale() const { return mScale; }
 	void SetScale(float scale) { mScale = scale; }
 	float GetRotation() const { return mRotation; }
 	void SetRotation(float rotation) { mRotation = rotation; }
-	const Vector2& GetPosition() const { return mPosition; }
-	void SetPosition(const Vector2& pos) { mPosition = pos; }
+
+	State GetState() const { return mState; }
+	void SetState(State state) { mState = state; }
 
 	class Game* GetGame() { return mGame; }
 
-	// 컴포넌트 추가/제거
-	void AddCompoment(class Component* component);
-	void RemoveComponent(class Component* component);
 
+	// Add/remove components
+	void AddComponent(class Component* component);
+	void RemoveComponent(class Component* component);
 private:
-	// 액터의 상태
+	// Actor's state
 	State mState;
-	// 변환(Transform)
-	Vector2 mPosition;	// 액터의 중점
-	float mScale;		// 액터의 배율(100% = 1.0)
-	float mRotation;	// 회전 각도(라디안)
-	// 이 액터가 보유한 컴포넌트들
+
+	// Transform
+	Vector2 mPosition;
+	float mScale;
+	float mRotation;
+
 	std::vector<class Component*> mComponents;
 	class Game* mGame;
 };
