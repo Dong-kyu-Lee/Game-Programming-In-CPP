@@ -7,20 +7,17 @@
 // ----------------------------------------------------------------
 
 #pragma once
-#include "Component.h"
+#include "MoveComponent.h"
+#include "Math.h"
 
-class MoveComponent : public Component
+class NavComponent : public MoveComponent
 {
 public:
 	// Lower update order to update first
-	MoveComponent(class Actor* owner, int updateOrder = 10);
+	NavComponent(class Actor* owner, int updateOrder = 10);
 	void Update(float deltaTime) override;
-	
-	float GetAngularSpeed() const { return mAngularSpeed; }
-	float GetForwardSpeed() const { return mForwardSpeed; }
-	void SetAngularSpeed(float speed) { mAngularSpeed = speed; }
-	void SetForwardSpeed(float speed) { mForwardSpeed = speed; }
+	void StartPath(const class Tile* start);
+	void TurnTo(const Vector2& pos);
 private:
-	float mAngularSpeed;
-	float mForwardSpeed;
+	const class Tile* mNextNode;
 };

@@ -8,6 +8,7 @@
 
 #include "Game.h"
 #include "SDL/SDL_image.h"
+#include "GL/glew.h"
 #include <algorithm>
 #include "Actor.h"
 #include "SpriteComponent.h"
@@ -18,7 +19,6 @@
 
 Game::Game()
 :mWindow(nullptr)
-,mRenderer(nullptr)
 ,mIsRunning(true)
 ,mUpdatingActors(false)
 {
@@ -32,20 +32,40 @@ bool Game::Initialize()
 		SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
 		return false;
 	}
+
+	// 코어 OpenGL 프로파일 사용
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	// 3.3 버전으로 지정
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	// RGBA 채널마다 8비트 크기인 색상 버퍼 요청
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	// 더블 버퍼링 활성화
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	// OpenGL이 하드웨어 가속을 사용하도록 강제
+	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 	
-	mWindow = SDL_CreateWindow("Game Programming in C++ (Chapter 4)", 100, 100, 1024, 768, 0);
+	mWindow = SDL_CreateWindow("Game Programming in C++ (Chapter 4)", 100, 100, 1024, 768, SDL_WINDOW_OPENGL);
 	if (!mWindow)
 	{
 		SDL_Log("Failed to create window: %s", SDL_GetError());
 		return false;
 	}
-	
-	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (!mRenderer)
+	mContext = SDL_GL_CreateContext(mWindow);
+
+	// GLEW 초기화
+	glewExperimental = GL_TRUE;
+	if(glewInit() != GLEW_OK)
 	{
-		SDL_Log("Failed to create renderer: %s", SDL_GetError());
+		SDL_Log("Failed to initialize GLEW");
 		return false;
 	}
+	// 일부 플랫폼에서 GLEW는 에러 코드를 내보낸다.
+	// 그러므로 에러값을 제거한다.
+	glGetError();
 	
 	if (IMG_Init(IMG_INIT_PNG) == 0)
 	{
@@ -158,16 +178,15 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-	SDL_SetRenderDrawColor(mRenderer, 34, 139, 34, 255);
-	SDL_RenderClear(mRenderer);
-	
-	// Draw all sprite components
-	for (auto sprite : mSprites)
-	{
-		sprite->Draw(mRenderer);
-	}
+	// 색상을 회색으로 설정
+	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+	// 화면을 지운다(색상 버퍼 초기화)
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	SDL_RenderPresent(mRenderer);
+	// 장면을 그린다.
+
+	// 버퍼를 스왑해서 장면을 출력한다.
+	SDL_GL_SwapWindow(mWindow);
 }
 
 void Game::LoadData()
@@ -221,14 +240,14 @@ SDL_Texture* Game::GetTexture(const std::string& fileName)
 			return nullptr;
 		}
 
-		// Create texture from surface
-		tex = SDL_CreateTextureFromSurface(mRenderer, surf);
-		SDL_FreeSurface(surf);
-		if (!tex)
-		{
-			SDL_Log("Failed to convert surface to texture for %s", fileName.c_str());
-			return nullptr;
-		}
+		//// Create texture from surface
+		//tex = SDL_CreateTextureFromSurface(mRenderer, surf);
+		//SDL_FreeSurface(surf);
+		//if (!tex)
+		//{
+		//	SDL_Log("Failed to convert surface to texture for %s", fileName.c_str());
+		//	return nullptr;
+		//}
 
 		mTextures.emplace(fileName.c_str(), tex);
 	}
@@ -239,7 +258,7 @@ void Game::Shutdown()
 {
 	UnloadData();
 	IMG_Quit();
-	SDL_DestroyRenderer(mRenderer);
+	SDL_GL_DeleteContext(mContext);
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
 }

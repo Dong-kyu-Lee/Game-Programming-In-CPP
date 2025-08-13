@@ -50,8 +50,8 @@ private:
 	// All the sprite components drawn
 	std::vector<class SpriteComponent*> mSprites;
 
+	SDL_GLContext mContext;
 	SDL_Window* mWindow;
-	SDL_Renderer* mRenderer;
 	Uint32 mTicksCount;
 	bool mIsRunning;
 	// Track if we're updating actors right now
