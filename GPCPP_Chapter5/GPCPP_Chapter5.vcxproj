@@ -161,6 +161,7 @@
     <ClCompile Include="SpriteComponent.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Tower.cpp" />
+    <ClCompile Include="VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
@@ -180,6 +181,7 @@
     <ClInclude Include="SpriteComponent.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="Tower.h" />
+    <ClInclude Include="VertexArray.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

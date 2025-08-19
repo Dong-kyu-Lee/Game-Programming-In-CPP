@@ -178,7 +178,7 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-	// 색상을 회색으로 설정
+	// 색상을 회색으로 설정 (Clear 색상)
 	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 	// 화면을 지운다(색상 버퍼 초기화)
 	glClear(GL_COLOR_BUFFER_BIT);
