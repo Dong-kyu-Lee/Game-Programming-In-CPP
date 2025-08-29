@@ -38,13 +38,15 @@ public:
 
 	// Getters/setters
 	const Vector2& GetPosition() const { return mPosition; }
-	void SetPosition(const Vector2& pos) { mPosition = pos; }
+	void SetPosition(const Vector2& pos) { mPosition = pos; mRecomputeWorldTransform = true; }
 	float GetScale() const { return mScale; }
-	void SetScale(float scale) { mScale = scale; }
+	void SetScale(float scale) { mScale = scale; mRecomputeWorldTransform = true; }
 	float GetRotation() const { return mRotation; }
-	void SetRotation(float rotation) { mRotation = rotation; }
+	void SetRotation(float rotation) { mRotation = rotation; mRecomputeWorldTransform = true; }
 
 	Vector2 GetForward() const { return Vector2(Math::Cos(mRotation), -Math::Sin(mRotation)); }
+
+	void ComputeWorldTransform();
 
 	State GetState() const { return mState; }
 	void SetState(State state) { mState = state; }
@@ -58,6 +60,8 @@ public:
 private:
 	// Actor's state
 	State mState;
+	Matrix4 mWorldTransform;
+	bool mRecomputeWorldTransform; // 세계 변환 행렬을 다시 계산해야 하는지 여부(액터의 위치, 회전, 스케일이 변경될 때 true로 설정)
 
 	// Transform
 	Vector2 mPosition;

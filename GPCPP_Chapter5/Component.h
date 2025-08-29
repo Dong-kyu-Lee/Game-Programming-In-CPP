@@ -21,6 +21,8 @@ public:
 	virtual void Update(float deltaTime);
 	// Process input for this component
 	virtual void ProcessInput(const uint8_t* keyState) {}
+	// 세계 변환이 갱신될 때 컴포넌트에 통지하기 위한 함수
+	virtual void OnUpdateWorldTransform() {}
 
 	int GetUpdateOrder() const { return mUpdateOrder; }
 protected:
