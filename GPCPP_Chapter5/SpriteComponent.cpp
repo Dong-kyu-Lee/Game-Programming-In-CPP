@@ -9,6 +9,8 @@
 #include "SpriteComponent.h"
 #include "Actor.h"
 #include "Game.h"
+#include "GL/glew.h"
+#include "Shader.h"
 
 SpriteComponent::SpriteComponent(Actor* owner, int drawOrder)
 	:Component(owner)
@@ -46,6 +48,15 @@ void SpriteComponent::Draw(SDL_Renderer* renderer)
 			nullptr,
 			SDL_FLIP_NONE);
 	}
+}
+
+void SpriteComponent::Draw(Shader* shader)
+{
+	glDrawElements(
+		GL_TRIANGLES, // 그려야 할 폴리곤/프리미티브 타입
+		6,  // 인덱스 개수
+		GL_UNSIGNED_INT, // 인덱스 타입
+		nullptr);
 }
 
 void SpriteComponent::SetTexture(SDL_Texture* texture)

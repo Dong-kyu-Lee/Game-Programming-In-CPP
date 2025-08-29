@@ -38,6 +38,8 @@ private:
 	void GenerateOutput();
 	void LoadData();
 	void UnloadData();
+	bool LoadShaders();
+	void CreateSpriteVerts();
 	
 	// Map of textures loaded
 	std::unordered_map<std::string, SDL_Texture*> mTextures;
@@ -49,6 +51,9 @@ private:
 
 	// All the sprite components drawn
 	std::vector<class SpriteComponent*> mSprites;
+
+	class Shader* mSpriteShader;
+	class VertexArray* mSpriteVerts;
 
 	SDL_GLContext mContext;
 	SDL_Window* mWindow;

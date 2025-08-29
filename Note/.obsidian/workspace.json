@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Game Programming C++/Chapter5/1. OpenGL.md",
+                "file": "Game Programming C++/Chapter5/2. 셰이더(Shader).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1. OpenGL"
+              "title": "2. 셰이더(Shader)"
             }
           }
         ]
@@ -160,6 +160,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:새 베이스 생성하기": false,
       "switcher:빠른 전환기 열기": false,
       "graph:그래프 뷰 열기": false,
       "canvas:새 캔버스 만들기": false,
@@ -170,11 +171,11 @@
   },
   "active": "cd302ad89995344e",
   "lastOpenFiles": [
+    "Game Programming C++/Chapter5/1. OpenGL.md",
     "Game Programming C++/Chapter4/3. 에이스타 탐색.md",
     "Game Programming C++/Chapter4/2. 탐욕 우선 탐색(GBFS).md",
     "Game Programming C++/Chapter4/1. 휴리스틱.md",
     "Game Programming C++/Chapter5/2. 셰이더(Shader).md",
-    "Game Programming C++/Chapter5/1. OpenGL.md",
     "Game Programming C++/Chapter5",
     "Game Programming C++/Chapter2/2. SDL Texture.md",
     "Game Programming C++/Chapter2/1. SDL Image.md",

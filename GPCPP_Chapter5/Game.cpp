@@ -16,9 +16,12 @@
 #include "Enemy.h"
 #include "AIComponent.h"
 #include "AIState.h"
+#include "Shader.h"
+#include "VertexArray.h"
 
 Game::Game()
 :mWindow(nullptr)
+,mSpriteShader(nullptr)
 ,mIsRunning(true)
 ,mUpdatingActors(false)
 {
@@ -66,10 +69,11 @@ bool Game::Initialize()
 	// 일부 플랫폼에서 GLEW는 에러 코드를 내보낸다.
 	// 그러므로 에러값을 제거한다.
 	glGetError();
-	
-	if (IMG_Init(IMG_INIT_PNG) == 0)
+
+	// Make sure we can create/compile shaders
+	if (!LoadShaders())
 	{
-		SDL_Log("Unable to initialize SDL_image: %s", SDL_GetError());
+		SDL_Log("Failed to load shaders.");
 		return false;
 	}
 
@@ -183,7 +187,15 @@ void Game::GenerateOutput()
 	// 화면을 지운다(색상 버퍼 초기화)
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// 장면을 그린다.
+	// 스프라이트 셰이더와 버텍스 배열을 활성화한다.
+	mSpriteShader->SetActive();
+	mSpriteVerts->SetActive();
+
+	// 모든 스프라이트 컴포넌트들을 그린다.
+	for (auto sprite : mSprites)
+	{
+		sprite->Draw(mSpriteShader);
+	}
 
 	// 버퍼를 스왑해서 장면을 출력한다.
 	SDL_GL_SwapWindow(mWindow);
@@ -192,16 +204,7 @@ void Game::GenerateOutput()
 void Game::LoadData()
 {
 	mGrid = new Grid(this);
-
-	// For testing AIComponent
-	//Actor* a = new Actor(this);
-	//AIComponent* aic = new AIComponent(a);
-	//// Register states with AIComponent
-	//aic->RegisterState(new AIPatrol(aic));
-	//aic->RegisterState(new AIDeath(aic));
-	//aic->RegisterState(new AIAttack(aic));
-	//// Start in patrol state
-	//aic->ChangeState("Patrol");
+	CreateSpriteVerts();
 }
 
 void Game::UnloadData()
@@ -219,6 +222,34 @@ void Game::UnloadData()
 		SDL_DestroyTexture(i.second);
 	}
 	mTextures.clear();
+}
+
+bool Game::LoadShaders()
+{
+	mSpriteShader = new Shader();
+	if (!mSpriteShader->Load("Shaders/Basic.vert", "Shaders/Basic.frag"))
+	{
+		return false;
+	}
+	mSpriteShader->SetActive();
+	return true;
+}
+
+void Game::CreateSpriteVerts()
+{
+	float vertices[] = {
+		-0.5f,  0.5f, 0.f, // top left
+		 0.5f,  0.5f, 0.f, // top right
+		 0.5f, -0.5f, 0.f, // bottom right
+		-0.5f, -0.5f, 0.f, // bottom left
+	};
+
+	unsigned int indices[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	mSpriteVerts = new VertexArray(vertices, 4, indices, 6);
 }
 
 SDL_Texture* Game::GetTexture(const std::string& fileName)
@@ -257,7 +288,8 @@ SDL_Texture* Game::GetTexture(const std::string& fileName)
 void Game::Shutdown()
 {
 	UnloadData();
-	IMG_Quit();
+	mSpriteShader->Unload();
+	delete mSpriteShader;
 	SDL_GL_DeleteContext(mContext);
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
